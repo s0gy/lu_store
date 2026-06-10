@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>卢家商业帝国</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="hero">
+    <div class="backdrop backdrop-left"></div>
+    <div class="backdrop backdrop-right"></div>
+    <section class="card">
+      <div class="card-top">
+        <p class="eyebrow">LU FAMILY COMMERCE</p>
+        <span class="status">Prototype v1</span>
+      </div>
+      <h1>卢家商业帝国</h1>
+      <p class="lead">原型站点</p>
+      <p class="copy">当前版本只承担展示作用，不接入商品规则、不读取 JSON、不处理表单提交。先把站点跑通，再逐步增加商品描述生成能力。</p>
+      <div class="actions">
+        <button type="button" disabled>功能开发中</button>
+        <p class="hint">当前阶段：静态展示页验证</p>
+      </div>
+      <div class="grid">
+        <article class="panel">
+          <p class="panel-label">第一阶段目标</p>
+          <p class="panel-text">本地启动成功，GitHub 推送顺利，云服务器可拉取并对公网提供访问。</p>
+        </article>
+        <article class="panel">
+          <p class="panel-label">后续能力</p>
+          <p class="panel-text">商品尺寸、颜色、材料映射规则，文案生成，规则持久化与后台管理。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
