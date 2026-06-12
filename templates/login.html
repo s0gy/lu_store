@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}登录 | 品辰报价网{% endblock %}
+
+{% block body %}
+  <main class="auth-shell">
+    <section class="auth-panel">
+      <div class="auth-copy">
+        <div class="auth-eyebrow">Account Access</div>
+        <h1>账户登录</h1>
+        <p>第一版采用数据库账户体系，管理员和普通用户共用登录入口，后端按角色控制页面权限。</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form class="auth-form" method="post">
+        <div class="form-row">
+          <label for="username">用户名</label>
+          <input id="username" name="username" type="text" autocomplete="username" required>
+        </div>
+        <div class="form-row">
+          <label for="password">密码</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="primary-btn auth-submit" type="submit">登录</button>
+      </form>
+
+      <div class="auth-hint">
+        <div>管理员：`admin / Admin@123456`</div>
+        <div>普通用户：`user1 / User@123456`</div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

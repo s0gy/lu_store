@@ -1,0 +1,31 @@
+<aside class="sidebar">
+  <div class="sidebar-panel">
+    <div class="sidebar-section">导航</div>
+    <div class="sidebar-group">
+      <div class="sidebar-title">工作区</div>
+      <a class="sidebar-link{% if active_page == 'quote' %} current{% endif %}" href="{{ url_for('quote') }}">在线报价</a>
+      <a class="sidebar-link{% if active_page == 'account' %} current{% endif %}" href="{{ url_for('account') }}">账户设置</a>
+      {% if current_user.role == "admin" %}
+        <a class="sidebar-link{% if active_page == 'admin_dashboard' %} current{% endif %}" href="{{ url_for('admin_dashboard') }}">管理员后台</a>
+        <a class="sidebar-link{% if active_page == 'admin_users' %} current{% endif %}" href="{{ url_for('admin_users') }}">账户管理</a>
+      {% endif %}
+    </div>
+
+    {% if show_products %}
+      <div class="sidebar-group">
+        <div class="sidebar-title active">产品管理</div>
+        <a class="sidebar-link" href="#">服装吊牌</a>
+        <a class="sidebar-link current" href="#">不干胶</a>
+        <a class="sidebar-link" href="#">电线胶</a>
+        <a class="sidebar-link" href="#">胶带</a>
+        <a class="sidebar-link" href="#">特光不干胶</a>
+        <a class="sidebar-link" href="#">防伪标</a>
+        <a class="sidebar-link" href="#">卷标标签</a>
+        <a class="sidebar-link" href="#">水标</a>
+        <a class="sidebar-link" href="#">插旗</a>
+        <a class="sidebar-link" href="#">卡片</a>
+        <a class="sidebar-link" href="#">包装纸</a>
+      </div>
+    {% endif %}
+  </div>
+</aside>

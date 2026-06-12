@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block title %}账户管理 | 品辰报价网{% endblock %}
+
+{% block body %}
+  <div class="shell">
+    <header class="topbar">
+      <div class="header-brand">
+        <div class="header-title">品辰报价网</div>
+        <div class="header-subtitle">User Administration</div>
+      </div>
+      <div class="topbar-tools topbar-tools-compact">
+        <div class="user-entry">{{ current_user.username }} / 管理员</div>
+        <form method="post" action="{{ url_for('logout') }}">
+          <button type="submit" class="secondary-btn">退出登录</button>
+        </form>
+      </div>
+    </header>
+
+    <div class="workspace">
+      {% set active_page = "admin_users" %}
+      {% set show_products = false %}
+      {% include "_sidebar.html" %}
+
+      <main class="main">
+        <div class="breadcrumbs">管理员后台 / 账户管理</div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-stack flash-stack-inline">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <section class="content">
+          <div class="section-header">
+            <div>
+              <h1>账户列表</h1>
+              <p>当前版本支持创建账户、启用或停用普通账户，以及直接重置密码。</p>
+            </div>
+            <div class="header-badge">Users</div>
+          </div>
+
+          <section class="table-panel admin-form-panel">
+            <div class="panel-heading">
+              <h2>新增账户</h2>
+              <span>管理员可创建 admin 或 user</span>
+            </div>
+            <form class="inline-form-grid" method="post" action="{{ url_for('admin_users_create') }}">
+              <div class="form-row">
+                <label for="newUsername">用户名</label>
+                <input id="newUsername" name="username" type="text" maxlength="32" required>
+              </div>
+              <div class="form-row">
+                <label for="newPassword">初始密码</label>
+                <input id="newPassword" name="password" type="password" minlength="8" required>
+              </div>
+              <div class="form-row">
+                <label for="newRole">角色</label>
+                <select id="newRole" name="role">
+                  <option value="user">普通用户</option>
+                  <option value="admin">管理员</option>
+                </select>
+              </div>
+              <div class="form-row form-row-action">
+                <label>&nbsp;</label>
+                <button type="submit" class="primary-btn">创建账户</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="table-panel">
+            <div class="account-card-grid">
+              {% for user in users %}
+                <article class="account-card">
+                  <div class="account-card-head">
+                    <div>
+                      <div class="account-card-id">ID {{ user.id }}</div>
+                      <h3>{{ user.username }}</h3>
+                    </div>
+                    <div class="account-role-pill">{{ "管理员" if user.role == "admin" else "普通用户" }}</div>
+                  </div>
+
+                  <div class="account-meta-grid">
+                    <div class="account-meta-item">
+                      <span>状态</span>
+                      <strong>{{ "启用" if user.is_active else "停用" }}</strong>
+                    </div>
+                    <div class="account-meta-item">
+                      <span>最后登录</span>
+                      <strong>{{ user.last_login_at.strftime("%m-%d %H:%M") if user.last_login_at else "未登录" }}</strong>
+                    </div>
+                    <div class="account-meta-item">
+                      <span>创建时间</span>
+                      <strong>{{ user.created_at.strftime("%m-%d %H:%M") }}</strong>
+                    </div>
+                  </div>
+
+                  <div class="account-actions-grid">
+                    <section class="account-action-block">
+                      <div class="account-action-title">修改用户名</div>
+                      <form class="stack-form" method="post" action="{{ url_for('admin_users_rename', user_id=user.id) }}">
+                        <input
+                          class="table-input"
+                          name="username"
+                          type="text"
+                          maxlength="32"
+                          value="{{ user.username }}"
+                          required
+                        >
+                        <button type="submit" class="secondary-btn secondary-btn-small">保存</button>
+                      </form>
+                    </section>
+
+                    <section class="account-action-block">
+                      <div class="account-action-title">修改角色</div>
+                      <form
+                        class="stack-form"
+                        method="post"
+                        action="{{ url_for('admin_users_change_role', user_id=user.id) }}"
+                        onsubmit="return confirmRoleChange(this, '{{ user.username }}', '{{ 'admin' if user.role == 'admin' else 'user' }}');"
+                      >
+                        <select class="table-select" name="role">
+                          <option value="user" {% if user.role == "user" %}selected{% endif %}>普通用户</option>
+                          <option value="admin" {% if user.role == "admin" %}selected{% endif %}>管理员</option>
+                        </select>
+                        <button type="submit" class="secondary-btn secondary-btn-small">更新</button>
+                      </form>
+                    </section>
+
+                    <section class="account-action-block">
+                      <div class="account-action-title">重置密码</div>
+                      <form class="stack-form" method="post" action="{{ url_for('admin_users_reset_password', user_id=user.id) }}">
+                        <input
+                          class="table-input"
+                          name="new_password"
+                          type="password"
+                          minlength="8"
+                          placeholder="不少于 8 位"
+                          required
+                        >
+                        <button type="submit" class="secondary-btn secondary-btn-small">重置</button>
+                      </form>
+                    </section>
+                  </div>
+
+                  <div class="account-card-footer">
+                    <form
+                      method="post"
+                      action="{{ url_for('admin_users_toggle_active', user_id=user.id) }}"
+                      onsubmit="return confirm('{{ '确认停用账户 ' ~ user.username ~ ' 吗？停用后该账户将无法登录。' if user.is_active else '确认启用账户 ' ~ user.username ~ ' 吗？' }}');"
+                    >
+                      <button
+                        type="submit"
+                        class="secondary-btn secondary-btn-small"
+                        {% if user.id == current_user.id %}disabled{% endif %}
+                      >
+                        {{ "停用账户" if user.is_active else "启用账户" }}
+                      </button>
+                    </form>
+                    <form
+                      method="post"
+                      action="{{ url_for('admin_users_delete', user_id=user.id) }}"
+                      onsubmit="return confirm('确认删除账户 {{ user.username }} 吗？此操作无法撤回。');"
+                    >
+                      <button
+                        type="submit"
+                        class="danger-btn danger-btn-small"
+                        {% if user.id == current_user.id %}disabled{% endif %}
+                      >
+                        删除账户
+                      </button>
+                    </form>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script>
+    function confirmRoleChange(form, username, currentRole) {
+      const nextRole = form.querySelector('select[name="role"]').value;
+      if (nextRole === currentRole) {
+        return true;
+      }
+
+      const nextRoleLabel = nextRole === "admin" ? "管理员" : "普通用户";
+      return confirm(`确认将账户 ${username} 的角色改为${nextRoleLabel}吗？`);
+    }
+  </script>
+{% endblock %}
