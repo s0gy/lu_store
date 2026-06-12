@@ -19,6 +19,7 @@
 ```powershell
 conda activate lu_store
 pip install -r requirements.txt
+export SECRET_KEY="your-local-secret-key"
 python app.py
 ```
 
@@ -42,6 +43,18 @@ lu_store/
     DEPLOYMENT.md
     TODO.md
 ```
+
+## 当前账户
+
+- 管理员：`admin / Admin@123456`
+- 普通用户：`user1 / User@123456`
+
+## 环境变量
+
+- `SECRET_KEY`
+  - Flask 用来保护登录 session 的签名密钥
+  - 开发环境可手动 `export SECRET_KEY="..."` 后启动
+  - 生产环境必须设置为随机且保密的值
 
 ## 相关文档
 
