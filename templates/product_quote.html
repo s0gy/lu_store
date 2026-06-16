@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ product.heading }} | 品辰报价网{% endblock %}
+
+{% block body %}
+  <div class="shell">
+    <header class="topbar">
+      <div class="header-brand">
+        <div class="header-title">品辰报价网</div>
+        <div class="header-subtitle">Packaging Quotation Workspace</div>
+      </div>
+      <div class="topbar-tools topbar-tools-compact">
+        <div class="search">
+          <input type="text" placeholder="搜索产品名称">
+          <button type="button">搜索</button>
+        </div>
+        <div class="user-entry">{{ current_user.username }} / {{ "管理员" if current_user.role == "admin" else "普通用户" }}</div>
+        <form method="post" action="{{ url_for('logout') }}">
+          <button type="submit" class="secondary-btn">退出登录</button>
+        </form>
+      </div>
+    </header>
+
+    <div class="workspace">
+      {% set active_page = "quote" %}
+      {% set show_products = true %}
+      {% include "_sidebar.html" %}
+
+      <main class="main">
+        <div class="breadcrumbs">产品管理 / {{ product.name }} / 在线报价</div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-stack flash-stack-inline">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <section class="content">
+          <div class="section-header">
+            <div>
+              <h1>{{ product.heading }}</h1>
+              <p>{{ product.description }}</p>
+            </div>
+            <div class="header-badge">{{ product.badge }}</div>
+          </div>
+
+          <div class="content-grid">
+            <section class="form-panel">
+              <div class="panel-heading">
+                <h2>报价参数</h2>
+                <span>基础信息</span>
+              </div>
+
+              <div class="form-row">
+                <label for="productType">品种</label>
+                <select id="productType">
+                  {% for item in product.types %}
+                    <option value="{{ item }}" {% if item == product.default_type %}selected{% endif %}>{{ item }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label for="sizeInput">{{ product.size_label | safe }}</label>
+                <input id="sizeInput" type="text" value="{{ product.default_size }}" placeholder="{{ product.default_size }}">
+              </div>
+
+              <div class="form-row">
+                <label for="quantityBase">{{ product.quantity_label }}</label>
+                <select id="quantityBase">
+                  {% for item in product.quantity_options %}
+                    <option value="{{ item }}" {% if item == product.default_quantity %}selected{% endif %}>{{ item }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label for="styleCount">{{ product.style_label }}</label>
+                <input id="styleCount" type="number" min="1" value="{{ product.default_style_count }}">
+              </div>
+
+              <div class="form-row">
+                <label for="customerName">{{ product.customer_label }}</label>
+                <input id="customerName" type="text" placeholder="请输入客户旺旺号">
+              </div>
+
+              <div class="craft-panel">
+                <div class="panel-heading">
+                  <h2>工艺选择</h2>
+                  <span>点击切换</span>
+                </div>
+                {% for group in product.craft_groups %}
+                  <div class="craft-group craft-group-stack">
+                    <div class="craft-group-label">{{ group.label }}</div>
+                    <div class="craft-chip-row">
+                      {% for option in group.options %}
+                        <button
+                          type="button"
+                          class="chip{% if loop.first %} active{% endif %}"
+                          data-group="{{ group.key }}"
+                          data-multi="{{ 'true' if group.multi else 'false' }}"
+                          data-value="{{ option }}"
+                        >
+                          {{ option }}
+                        </button>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+              <div class="action-row">
+                <button id="calcButton" type="button" class="primary-btn">计算</button>
+                <button id="resetButton" type="button" class="secondary-btn">重置</button>
+              </div>
+
+              <div class="result-block">
+                <div class="result-header">
+                  <h2>报价结果</h2>
+                  <button id="copyButton" type="button" class="copy-link">点击复制</button>
+                </div>
+                <textarea id="resultText" readonly></textarea>
+              </div>
+            </section>
+
+            <aside class="preview-panel">
+              <div class="panel-heading">
+                <h2>效果预览</h2>
+                <span>展示区</span>
+              </div>
+              <div class="preview-stage">
+                <div class="preview-card">
+                  <div class="preview-label">{{ product.preview_label }}</div>
+                  <div class="preview-badge">{{ product.preview_badge }}</div>
+                  <div class="preview-note">{{ product.preview_note }}</div>
+                </div>
+              </div>
+              <div class="shipping-note">
+                <h4>报价说明</h4>
+                <h3>Demo 规则:</h3>
+                {% for line in product.result_lines %}
+                  <p>{{ line }}</p>
+                {% endfor %}
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script id="productConfig" type="application/json">{{ product | tojson }}</script>
+  <script src="{{ asset_url('product_quote.js') }}"></script>
+{% endblock %}

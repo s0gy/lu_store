@@ -438,6 +438,23 @@ textarea {
   margin: 12px 0;
 }
 
+.craft-group-stack {
+  display: block;
+}
+
+.craft-group-label {
+  margin-bottom: 8px;
+  color: #66717d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.craft-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .chip {
   min-width: 94px;
   height: 38px;
