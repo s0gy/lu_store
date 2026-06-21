@@ -70,8 +70,6 @@
                 <label for="productType">品种</label>
                 <select id="productType">
                   <option value="铜板纸不干胶">铜板纸不干胶</option>
-                  <option value="透明不干胶">透明不干胶</option>
-                  <option value="书写纸不干胶">书写纸不干胶</option>
                 </select>
               </div>
 
@@ -95,6 +93,11 @@
               </div>
 
               <div class="form-row">
+                <label for="priceScale">价格缩放系数</label>
+                <input id="priceScale" type="number" min="0" step="0.01" value="1" placeholder="例如 0.8">
+              </div>
+
+              <div class="form-row">
                 <label for="customerName">客户旺旺</label>
                 <input id="customerName" type="text" placeholder="请输入客户旺旺号">
               </div>
@@ -111,12 +114,11 @@
                 <div class="craft-group">
                   <button type="button" class="chip active" data-group="lamination" data-value="覆亮膜">覆亮膜</button>
                   <button type="button" class="chip" data-group="lamination" data-value="覆哑膜">覆哑膜</button>
-                  <button type="button" class="chip" data-group="lamination" data-value="不覆膜">不覆膜</button>
                 </div>
                 <div class="craft-group">
-                  <button type="button" class="chip" data-group="extra" data-value="配刮刮膜">配刮刮膜</button>
-                  <button type="button" class="chip" data-group="extra" data-value="粘钻刮刮膜">粘钻刮刮膜</button>
-                  <button type="button" class="chip" data-group="extra" data-value="烫金">烫金</button>
+                  <button type="button" class="chip" data-group="extra" data-value="纯烫金">纯烫金</button>
+                  <button type="button" class="chip" data-group="extra" data-value="烫镭射银">烫镭射银</button>
+                  <button type="button" class="chip" data-group="extra" data-value="彩色印刷+烫金/银">彩色印刷+烫金/银</button>
                 </div>
               </div>
 
