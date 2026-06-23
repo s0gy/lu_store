@@ -18,86 +18,70 @@ const LABELS = {
   }
 };
 
-const SIZE_TIER_AREA = 25;
-
-const BRIGHT_BASE_TIER_PRICES = {
-  500: {
-    0: 41,
-    1: 69,
-    2: 102
+const GROUPED_TIER_RULES = {
+  glossy: {
+    none: [
+      { match: { width: 5, heightMin: 5, heightMax: 8 }, prices: { 500: 60, 1000: 70, 2000: 95 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 88, 1000: 105, 2000: 150 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 79, 1000: 94, 2000: 132 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 85, 1000: 102, 2000: 145 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 104, 1000: 124, 2000: 176 } },
+      { match: { width: 7, height: 10 }, prices: { 500: 110, 1000: 129, 2000: 202 } }
+    ],
+    pureGold: [
+      { match: { width: 5, heightMin: 5, heightMax: 8 }, prices: { 500: 184, 1000: 194, 2000: 331 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 218, 1000: 235, 2000: 385 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 203, 1000: 218, 2000: 368 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 209, 1000: 226, 2000: 381 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 274, 1000: 294, 2000: 399 } }
+    ],
+    colorGoldSilver: [
+      { match: { width: 3, height: 4 }, prices: { 500: 221, 1000: 226, 2000: 409 } },
+      { match: { width: 5, heightMin: 5, heightMax: 8 }, prices: { 500: 246, 1000: 256, 2000: 449 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 283, 1000: 300, 2000: 503 } },
+      { match: { width: 6, height: 6 }, prices: { 500: 258, 1000: 272, 2000: 475 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 265, 1000: 280, 2000: 486 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 271, 1000: 288, 2000: 499 } },
+      { match: { width: 6, height: 9 }, prices: { 500: 314, 1000: 332, 2000: 506 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 359, 1000: 379, 2000: 511 } },
+      { match: { width: 7, height: 8 }, prices: { 500: 329, 1000: 348, 2000: 508 } },
+      { match: { width: 7, height: 10 }, prices: { 500: 425, 1000: 444, 2000: 517 } },
+      { match: { width: 8, height: 10 }, prices: { 500: 455, 1000: 476, 2000: 558 } },
+      { match: { width: 9, height: 10 }, prices: { 500: 469, 1000: 507, 2000: 580 } }
+    ]
   },
-  1000: {
-    0: 46,
-    1: 81,
-    2: 121
-  },
-  2000: {
-    0: 64,
-    1: 110,
-    2: 173
-  }
-};
-
-const BRIGHT_COLOR_GOLD_TIER_PRICES = {
-  500: {
-    micro: 249,
-    0: 255,
-    1: 283,
-    2: 326,
-    3: 446,
-    4: 566
-  },
-  1000: {
-    micro: 255,
-    0: 260,
-    1: 295,
-    2: 345,
-    3: 482,
-    4: 618
-  },
-  2000: {
-    micro: 465,
-    0: 471,
-    1: 517,
-    2: 579,
-    3: 645,
-    4: 710
-  }
-};
-
-const MATTE_RATIOS = {
-  none: {
-    500: 83 / 69,
-    1000: 97 / 81,
-    2000: 132 / 110
-  },
-  pureGold: {
-    500: 255 / 212,
-    1000: 268 / 224,
-    2000: 458 / 381
-  },
-  laserSilver: {
-    500: 255 / 212,
-    1000: 268 / 224,
-    2000: 458 / 381
-  },
-  colorGoldSilver: {
-    500: 341 / 283,
-    1000: 355 / 295,
-    2000: 620 / 517
-  }
-};
-
-const FOIL_SURCHARGE_RATIOS = {
-  pureGold: {
-    500: (212 - 69) / (283 - 69),
-    1000: (224 - 81) / (295 - 81),
-    2000: (381 - 110) / (517 - 110)
-  },
-  laserSilver: {
-    500: (212 - 69) / (283 - 69),
-    1000: (224 - 81) / (295 - 81),
-    2000: (381 - 110) / (517 - 110)
+  matte: {
+    none: [
+      { match: { width: 5, heightMin: 5, heightMax: 7 }, prices: { 500: 72, 1000: 84, 2000: 114 } },
+      { match: { width: 6, height: 6 }, prices: { 500: 86, 1000: 102, 2000: 142 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 94, 1000: 111, 2000: 155 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 101, 1000: 121, 2000: 170 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 105, 1000: 124, 2000: 176 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 124, 1000: 147, 2000: 208 } },
+      { match: { width: 7, height: 10 }, prices: { 500: 131, 1000: 153, 2000: 239 } }
+    ],
+    pureGold: [
+      { match: { width: 5, heightMin: 5, heightMax: 8 }, prices: { 500: 221, 1000: 233, 2000: 398 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 261, 1000: 280, 2000: 458 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 243, 1000: 260, 2000: 438 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 250, 1000: 270, 2000: 454 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 328, 1000: 351, 2000: 475 } },
+      { match: { width: 7, height: 10 }, prices: { 500: 383, 1000: 405, 2000: 491 } }
+    ],
+    colorGoldSilver: [
+      { match: { width: 2, height: 2 }, prices: { 500: 274, 1000: 281, 2000: 504 } },
+      { match: { width: 2, height: 3 }, prices: { 500: 274, 1000: 281, 2000: 504 } },
+      { match: { width: 2, height: 4 }, prices: { 500: 274, 1000: 281, 2000: 504 } },
+      { match: { width: 3, height: 4 }, prices: { 500: 274, 1000: 281, 2000: 504 } },
+      { match: { width: 5, heightMin: 5, heightMax: 8 }, prices: { 500: 296, 1000: 308, 2000: 539 } },
+      { match: { width: 5, height: 10 }, prices: { 500: 339, 1000: 358, 2000: 600 } },
+      { match: { width: 6, height: 7 }, prices: { 500: 317, 1000: 334, 2000: 580 } },
+      { match: { width: 6, height: 8 }, prices: { 500: 325, 1000: 344, 2000: 595 } },
+      { match: { width: 6, height: 10 }, prices: { 500: 430, 1000: 453, 2000: 610 } },
+      { match: { width: 7, height: 10 }, prices: { 500: 509, 1000: 531, 2000: 617 } },
+      { match: { width: 8, height: 10 }, prices: { 500: 545, 1000: 570, 2000: 666 } },
+      { match: { width: 9, height: 10 }, prices: { 500: 562, 1000: 607, 2000: 692 } }
+    ]
   }
 };
 
@@ -105,71 +89,110 @@ const DIMENSION_SAMPLE_RULES = {
   glossy: {
     colorGoldSilver: {
       500: [
-        [1, 1, 249],
-        [2, 2, 255],
-        [2, 3, 255],
-        [3, 3, 255],
-        [5, 5, 283],
-        [5, 10, 326],
-        [6, 10, 413],
-        [10, 10, 566]
+        [3, 4, 221],
+        [5, 5, 246],
+        [5, 6, 246],
+        [5, 7, 246],
+        [5, 8, 246],
+        [5, 10, 283],
+        [6, 6, 258],
+        [6, 7, 265],
+        [6, 8, 271],
+        [6, 9, 314],
+        [6, 10, 359],
+        [7, 8, 329],
+        [7, 10, 425],
+        [8, 10, 455],
+        [9, 10, 469]
       ],
       1000: [
-        [1, 1, 255],
-        [2, 2, 260],
-        [2, 3, 260],
-        [3, 3, 260],
-        [5, 5, 295],
-        [5, 10, 345],
-        [6, 10, 436],
-        [10, 10, 618]
+        [3, 4, 226],
+        [5, 5, 256],
+        [5, 6, 256],
+        [5, 7, 256],
+        [5, 8, 256],
+        [5, 10, 300],
+        [6, 6, 272],
+        [6, 7, 280],
+        [6, 8, 288],
+        [6, 9, 332],
+        [6, 10, 379],
+        [7, 8, 348],
+        [7, 10, 444],
+        [8, 10, 476],
+        [9, 10, 507]
       ],
       2000: [
-        [1, 1, 465],
-        [2, 2, 471],
-        [2, 3, 471],
-        [3, 3, 471],
-        [5, 5, 517],
-        [5, 10, 579],
-        [6, 10, 588],
-        [10, 10, 710]
+        [3, 4, 409],
+        [5, 5, 449],
+        [5, 6, 449],
+        [5, 7, 449],
+        [5, 8, 449],
+        [5, 10, 503],
+        [6, 6, 475],
+        [6, 7, 486],
+        [6, 8, 499],
+        [6, 9, 506],
+        [6, 10, 511],
+        [7, 8, 508],
+        [7, 10, 517],
+        [8, 10, 558],
+        [9, 10, 580]
       ]
     }
   },
   matte: {
     colorGoldSilver: {
       500: [
-        [1, 5, 316],
-        [2, 5, 316],
-        [5, 5, 341],
-        [5, 6, 341],
-        [5, 7, 341],
-        [5, 9, 341],
-        [5, 10, 390],
-        [6, 7, 365],
-        [6, 8, 374]
+        [2, 2, 274],
+        [2, 3, 274],
+        [2, 4, 274],
+        [3, 4, 274],
+        [5, 5, 296],
+        [5, 6, 296],
+        [5, 7, 296],
+        [5, 8, 296],
+        [5, 10, 339],
+        [6, 7, 317],
+        [6, 8, 325],
+        [6, 10, 430],
+        [7, 10, 509],
+        [8, 10, 545],
+        [9, 10, 562]
       ],
       1000: [
-        [1, 5, 324],
-        [2, 5, 324],
-        [5, 5, 355],
-        [5, 6, 355],
-        [5, 7, 355],
-        [5, 9, 355],
-        [5, 10, 412],
-        [6, 7, 385],
-        [6, 8, 396]
+        [2, 2, 281],
+        [2, 3, 281],
+        [2, 4, 281],
+        [3, 4, 281],
+        [5, 5, 308],
+        [5, 6, 308],
+        [5, 7, 308],
+        [5, 8, 308],
+        [5, 10, 358],
+        [6, 7, 334],
+        [6, 8, 344],
+        [6, 10, 453],
+        [7, 10, 531],
+        [8, 10, 570],
+        [9, 10, 607]
       ],
       2000: [
-        [1, 5, 580],
-        [2, 5, 580],
-        [5, 5, 620],
-        [5, 6, 620],
-        [5, 7, 620],
-        [5, 9, 620],
-        [5, 10, 690],
-        [6, 7, 667],
-        [6, 8, 685]
+        [2, 2, 504],
+        [2, 3, 504],
+        [2, 4, 504],
+        [3, 4, 504],
+        [5, 5, 539],
+        [5, 6, 539],
+        [5, 7, 539],
+        [5, 8, 539],
+        [5, 10, 600],
+        [6, 7, 580],
+        [6, 8, 595],
+        [6, 10, 610],
+        [7, 10, 617],
+        [8, 10, 666],
+        [9, 10, 692]
       ]
     }
   }
@@ -281,64 +304,53 @@ function formatPrice(value) {
   return value.toFixed(2).replace(/\.?0+$/, "");
 }
 
-function getAreaTier(area) {
-  if (area <= 1) {
-    return "micro";
-  }
-  return Math.max(0, Math.floor(area / SIZE_TIER_AREA));
-}
-
-function getTierPrice(area, quantity, tierPrices) {
-  const tier = getAreaTier(area);
-  const priceSet = tierPrices[quantity];
-  if (tier === "micro") {
-    return priceSet.micro ?? priceSet[0];
-  }
-
-  if (priceSet[tier] != null) {
-    return priceSet[tier];
-  }
-
-  const numericTiers = Object.keys(priceSet)
-    .filter((key) => key !== "micro")
-    .map((key) => Number(key))
-    .sort((left, right) => left - right);
-  const lastTier = numericTiers[numericTiers.length - 1];
-  const lastPrice = priceSet[lastTier];
-  const prevTier = numericTiers[numericTiers.length - 2] ?? lastTier;
-  const prevPrice = priceSet[prevTier];
-  const stepPrice = lastTier === prevTier ? 0 : lastPrice - prevPrice;
-  return lastPrice + stepPrice * (tier - lastTier);
-}
-
-function getBrightBasePrice(area, quantity) {
-  return roundMoney(getTierPrice(area, quantity, BRIGHT_BASE_TIER_PRICES));
-}
-
-function getBrightColorGoldPrice(area, quantity) {
-  return roundMoney(getTierPrice(area, quantity, BRIGHT_COLOR_GOLD_TIER_PRICES));
-}
-
-function getBrightPrice(area, quantity, extraCode) {
-  const basePrice = getBrightBasePrice(area, quantity);
-
-  if (extraCode === "none") {
-    return basePrice;
-  }
-
-  if (extraCode === "colorGoldSilver") {
-    return getBrightColorGoldPrice(area, quantity);
-  }
-
-  const fullFoilPrice = getBrightColorGoldPrice(area, quantity);
-  const fullFoilSurcharge = fullFoilPrice - basePrice;
-  const ratio = FOIL_SURCHARGE_RATIOS[extraCode][quantity];
-  return roundMoney(basePrice + fullFoilSurcharge * ratio);
-}
-
 function sortDimensions(size) {
   const sides = [size.width, size.height].sort((left, right) => left - right);
   return [sides[0], sides[1]];
+}
+
+function normalizeExtraCode(extraCode) {
+  if (extraCode === "laserSilver") {
+    return "pureGold";
+  }
+  return extraCode || "none";
+}
+
+function matchesTierRule(size, match) {
+  const normalizedSize = normalizeSize(size);
+  if (match.width != null && normalizedSize.width !== match.width) {
+    return false;
+  }
+  if (match.height != null && normalizedSize.height !== match.height) {
+    return false;
+  }
+  if (match.heightMin != null && normalizedSize.height < match.heightMin) {
+    return false;
+  }
+  if (match.heightMax != null && normalizedSize.height > match.heightMax) {
+    return false;
+  }
+  return true;
+}
+
+function getGroupedTierPrice(size, laminationCode, extraCode, quantity) {
+  const normalizedExtra = normalizeExtraCode(extraCode);
+  const laminationRules = GROUPED_TIER_RULES[laminationCode];
+  if (!laminationRules) {
+    return null;
+  }
+
+  const tierRules = laminationRules[normalizedExtra];
+  if (!Array.isArray(tierRules)) {
+    return null;
+  }
+
+  const matchedRule = tierRules.find((rule) => matchesTierRule(size, rule.match));
+  if (!matchedRule) {
+    return null;
+  }
+
+  return matchedRule.prices[quantity] ?? null;
 }
 
 function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) {
@@ -384,21 +396,17 @@ function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) 
 }
 
 function getUnitPrice(size, laminationCode, extraCode, quantity) {
+  const groupedTierPrice = getGroupedTierPrice(size, laminationCode, extraCode, quantity);
+  if (typeof groupedTierPrice === "number") {
+    return groupedTierPrice;
+  }
+
   const dimensionPrice = interpolateDimensionSamples(size, laminationCode, extraCode, quantity);
   if (typeof dimensionPrice === "number") {
     return dimensionPrice;
   }
 
-  const area = getArea(size);
-  const normalizedExtra = extraCode || "none";
-  const brightPrice = getBrightPrice(area, quantity, normalizedExtra);
-
-  if (laminationCode === "glossy") {
-    return brightPrice;
-  }
-
-  const ratio = MATTE_RATIOS[normalizedExtra][quantity];
-  return roundMoney(brightPrice * ratio);
+  return null;
 }
 
 function buildHeader(product, size, cutCode, laminationCode, extraCode) {
@@ -422,13 +430,15 @@ function generateText() {
   const cutCode = getActiveCode("cut") || "dieCut";
   const laminationCode = getActiveCode("lamination") || "glossy";
   const extraCode = getActiveCode("extra") || "none";
-  const area = getArea(size);
-
   const lines = [];
   lines.push(buildHeader(product, size, cutCode, laminationCode, extraCode));
 
   QUANTITY_PLANS.forEach((quantity) => {
     const unitPrice = getUnitPrice(size, laminationCode, extraCode, quantity);
+    if (typeof unitPrice !== "number") {
+      lines.push(`${styleNumber}款 ${quantity}个，当前基线未覆盖该尺寸/工艺组合`);
+      return;
+    }
     const totalPrice = unitPrice * styleNumber * scale;
     lines.push(`${styleNumber}\u6b3e ${quantity}\u4e2a\uff0c\u5171${formatPrice(totalPrice)}\u5143`);
   });
