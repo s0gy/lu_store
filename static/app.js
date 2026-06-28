@@ -198,6 +198,47 @@ const DIMENSION_SAMPLE_RULES = {
   }
 };
 
+const RANGE_PADDING = 1;
+const MAX_INTERPOLATION_DISTANCE = 3;
+
+function buildExpandedTierSamples() {
+  const expandedRules = {};
+
+  Object.entries(GROUPED_TIER_RULES).forEach(([laminationCode, extraRules]) => {
+    expandedRules[laminationCode] = {};
+
+    Object.entries(extraRules).forEach(([extraCode, tierRules]) => {
+      expandedRules[laminationCode][extraCode] = {};
+
+      QUANTITY_PLANS.forEach((quantity) => {
+        const sampleMap = new Map();
+
+        tierRules.forEach((rule) => {
+          const widths = rule.match.width != null ? [rule.match.width] : [];
+          const heightStart = rule.match.height != null ? rule.match.height : rule.match.heightMin;
+          const heightEnd = rule.match.height != null ? rule.match.height : rule.match.heightMax;
+          if (!widths.length || heightStart == null || heightEnd == null) {
+            return;
+          }
+
+          widths.forEach((width) => {
+            for (let height = heightStart; height <= heightEnd; height += 1) {
+              const key = `${width}*${height}`;
+              sampleMap.set(key, [width, height, rule.prices[quantity]]);
+            }
+          });
+        });
+
+        expandedRules[laminationCode][extraCode][quantity] = Array.from(sampleMap.values());
+      });
+    });
+  });
+
+  return expandedRules;
+}
+
+const EXPANDED_TIER_SAMPLE_RULES = buildExpandedTierSamples();
+
 const productType = document.getElementById("productType");
 const sizeInput = document.getElementById("sizeInput");
 const quantityBase = document.getElementById("quantityBase");
@@ -316,6 +357,17 @@ function normalizeExtraCode(extraCode) {
   return extraCode || "none";
 }
 
+function mergeSamples(primarySamples, secondarySamples) {
+  const sampleMap = new Map();
+
+  [...secondarySamples, ...primarySamples].forEach((sample) => {
+    const [width, height, price] = sample;
+    sampleMap.set(`${width}*${height}`, [width, height, price]);
+  });
+
+  return Array.from(sampleMap.values());
+}
+
 function matchesTierRule(size, match) {
   const normalizedSize = normalizeSize(size);
   if (match.width != null && normalizedSize.width !== match.width) {
@@ -353,19 +405,60 @@ function getGroupedTierPrice(size, laminationCode, extraCode, quantity) {
   return matchedRule.prices[quantity] ?? null;
 }
 
-function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) {
-  const laminationRules = DIMENSION_SAMPLE_RULES[laminationCode];
-  if (!laminationRules) {
-    return null;
-  }
+function getInterpolationSamples(laminationCode, extraCode, quantity) {
+  const explicitSamples = DIMENSION_SAMPLE_RULES[laminationCode]?.[extraCode]?.[quantity] || [];
+  const expandedSamples =
+    EXPANDED_TIER_SAMPLE_RULES[laminationCode]?.[normalizeExtraCode(extraCode)]?.[quantity] || [];
+  return mergeSamples(explicitSamples, expandedSamples);
+}
 
-  const extraRules = laminationRules[extraCode];
-  if (!extraRules) {
-    return null;
-  }
-
-  const samples = extraRules[quantity];
+function getInterpolationBounds(samples) {
   if (!Array.isArray(samples) || samples.length === 0) {
+    return null;
+  }
+
+  const widths = samples.map(([width]) => width);
+  const heights = samples.map(([, height]) => height);
+  return {
+    minWidth: Math.min(...widths),
+    maxWidth: Math.max(...widths),
+    minHeight: Math.min(...heights),
+    maxHeight: Math.max(...heights)
+  };
+}
+
+function isInterpolationCandidate(size, samples) {
+  if (!Array.isArray(samples) || samples.length === 0) {
+    return false;
+  }
+
+  const [targetWidth, targetHeight] = sortDimensions(size);
+  const bounds = getInterpolationBounds(samples);
+  if (!bounds) {
+    return false;
+  }
+
+  if (
+    targetWidth < bounds.minWidth - RANGE_PADDING ||
+    targetWidth > bounds.maxWidth + RANGE_PADDING ||
+    targetHeight < bounds.minHeight - RANGE_PADDING ||
+    targetHeight > bounds.maxHeight + RANGE_PADDING
+  ) {
+    return false;
+  }
+
+  const nearestDistance = samples.reduce((best, [sampleWidth, sampleHeight]) => {
+    const distance =
+      Math.sqrt((targetWidth - sampleWidth) ** 2 + (targetHeight - sampleHeight) ** 2);
+    return Math.min(best, distance);
+  }, Number.POSITIVE_INFINITY);
+
+  return nearestDistance <= MAX_INTERPOLATION_DISTANCE;
+}
+
+function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) {
+  const samples = getInterpolationSamples(laminationCode, extraCode, quantity);
+  if (!isInterpolationCandidate(size, samples)) {
     return null;
   }
 
@@ -395,7 +488,20 @@ function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) 
   return roundMoney(numerator / denominator);
 }
 
-function getUnitPrice(size, laminationCode, extraCode, quantity) {
+function getDerivedGoldPrice(size, laminationCode, quantity) {
+  const nonePrice = getUnitPrice(size, laminationCode, "none", quantity, { skipDerived: true });
+  const colorPrice = getUnitPrice(size, laminationCode, "colorGoldSilver", quantity, {
+    skipDerived: true
+  });
+
+  if (typeof nonePrice !== "number" || typeof colorPrice !== "number") {
+    return null;
+  }
+
+  return roundMoney(nonePrice + (colorPrice - nonePrice) * (2 / 3));
+}
+
+function getUnitPrice(size, laminationCode, extraCode, quantity, options = {}) {
   const groupedTierPrice = getGroupedTierPrice(size, laminationCode, extraCode, quantity);
   if (typeof groupedTierPrice === "number") {
     return groupedTierPrice;
@@ -404,6 +510,13 @@ function getUnitPrice(size, laminationCode, extraCode, quantity) {
   const dimensionPrice = interpolateDimensionSamples(size, laminationCode, extraCode, quantity);
   if (typeof dimensionPrice === "number") {
     return dimensionPrice;
+  }
+
+  if (!options.skipDerived && normalizeExtraCode(extraCode) === "pureGold") {
+    const derivedGoldPrice = getDerivedGoldPrice(size, laminationCode, quantity);
+    if (typeof derivedGoldPrice === "number") {
+      return derivedGoldPrice;
+    }
   }
 
   return null;
