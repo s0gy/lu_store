@@ -148,6 +148,7 @@ const DIMENSION_SAMPLE_RULES = {
         [2, 3, 274],
         [2, 4, 274],
         [3, 4, 274],
+        [3, 9, 296],
         [5, 5, 296],
         [5, 6, 296],
         [5, 7, 296],
@@ -165,6 +166,7 @@ const DIMENSION_SAMPLE_RULES = {
         [2, 3, 281],
         [2, 4, 281],
         [3, 4, 281],
+        [3, 9, 308],
         [5, 5, 308],
         [5, 6, 308],
         [5, 7, 308],
@@ -182,6 +184,7 @@ const DIMENSION_SAMPLE_RULES = {
         [2, 3, 504],
         [2, 4, 504],
         [3, 4, 504],
+        [3, 9, 539],
         [5, 5, 539],
         [5, 6, 539],
         [5, 7, 539],
@@ -200,6 +203,10 @@ const DIMENSION_SAMPLE_RULES = {
 
 const RANGE_PADDING = 1;
 const MAX_INTERPOLATION_DISTANCE = 3;
+const BASELINE_DATA_URL = "/static/sticker_baseline.json";
+
+let capturedBaselineData = null;
+let capturedBaselineIndex = new Map();
 
 function buildExpandedTierSamples() {
   const expandedRules = {};
@@ -249,13 +256,14 @@ const resultText = document.getElementById("resultText");
 const calcButton = document.getElementById("calcButton");
 const resetButton = document.getElementById("resetButton");
 const copyButton = document.getElementById("copyButton");
+const baselineStatus = document.getElementById("baselineStatus");
 const chips = Array.from(document.querySelectorAll(".chip"));
 
 function bootstrapChipMeta() {
   const groupCodes = {
     cut: ["dieCut", "trimCut"],
     lamination: ["glossy", "matte"],
-    extra: ["pureGold", "laserSilver", "colorGoldSilver"]
+    extra: ["pureGold", "colorGoldSilver"]
   };
 
   const groupLabels = {
@@ -263,7 +271,6 @@ function bootstrapChipMeta() {
     lamination: ["\u8986\u4eae\u819c", "\u8986\u54d1\u819c"],
     extra: [
       "\u7eaf\u70eb\u91d1",
-      "\u70eb\u9559\u5c04\u94f6",
       "\u5f69\u8272\u5370\u5237+\u70eb\u91d1/\u94f6"
     ]
   };
@@ -332,6 +339,82 @@ function normalizeSize(size) {
 function getSizeRuleKey(size) {
   const normalizedSize = normalizeSize(size);
   return `${normalizedSize.width}*${normalizedSize.height}`;
+}
+
+function getBaselineGroupKey(product, cutCode, laminationCode, extraCode) {
+  return [product, cutCode, laminationCode, normalizeExtraCode(extraCode)].join("|");
+}
+
+function describeBaselineSelection(cutCode, laminationCode, extraCode) {
+  const parts = [LABELS.cut[cutCode], LABELS.lamination[laminationCode]];
+  const normalizedExtraCode = normalizeExtraCode(extraCode);
+  if (normalizedExtraCode && normalizedExtraCode !== "none") {
+    parts.push(LABELS.extra[normalizedExtraCode]);
+  }
+  return parts.filter(Boolean).join("-");
+}
+
+function buildCapturedBaselineIndex(data) {
+  const nextIndex = new Map();
+
+  if (!data || !Array.isArray(data.groups)) {
+    return nextIndex;
+  }
+
+  data.groups.forEach((group) => {
+    const groupKey = getBaselineGroupKey(
+      data.product,
+      group.cutCode,
+      group.laminationCode,
+      group.extraCode
+    );
+    const sizeMap = new Map();
+
+    group.rows.forEach((row) => {
+      sizeMap.set(row.size, row.prices || {});
+    });
+
+    nextIndex.set(groupKey, sizeMap);
+  });
+
+  return nextIndex;
+}
+
+function getCapturedBaselinePrice(size, product, cutCode, laminationCode, extraCode, quantity) {
+  const groupKey = getBaselineGroupKey(product, cutCode, laminationCode, extraCode);
+  const sizeMap = capturedBaselineIndex.get(groupKey);
+  if (!sizeMap) {
+    return null;
+  }
+
+  const prices = sizeMap.get(getSizeRuleKey(size));
+  const price = prices ? prices[String(quantity)] : null;
+  return typeof price === "number" ? price : null;
+}
+
+function getCapturedBaselineRow(size, product, cutCode, laminationCode, extraCode) {
+  const groupKey = getBaselineGroupKey(product, cutCode, laminationCode, extraCode);
+  const sizeMap = capturedBaselineIndex.get(groupKey);
+  return sizeMap ? sizeMap.get(getSizeRuleKey(size)) || null : null;
+}
+
+function updateBaselineStatus(message, isFallback = false) {
+  if (!baselineStatus) {
+    return;
+  }
+
+  if (isFallback) {
+    baselineStatus.classList.add("is-fallback");
+  } else {
+    baselineStatus.classList.remove("is-fallback");
+  }
+  const value =
+    typeof baselineStatus.querySelector === "function"
+      ? baselineStatus.querySelector("strong")
+      : null;
+  if (value) {
+    value.textContent = message;
+  }
 }
 
 function roundMoney(value) {
@@ -488,10 +571,16 @@ function interpolateDimensionSamples(size, laminationCode, extraCode, quantity) 
   return roundMoney(numerator / denominator);
 }
 
-function getDerivedGoldPrice(size, laminationCode, quantity) {
-  const nonePrice = getUnitPrice(size, laminationCode, "none", quantity, { skipDerived: true });
+function getDerivedGoldPrice(size, laminationCode, quantity, options = {}) {
+  const nonePrice = getUnitPrice(size, laminationCode, "none", quantity, {
+    skipDerived: true,
+    cutCode: options.cutCode,
+    product: options.product
+  });
   const colorPrice = getUnitPrice(size, laminationCode, "colorGoldSilver", quantity, {
-    skipDerived: true
+    skipDerived: true,
+    cutCode: options.cutCode,
+    product: options.product
   });
 
   if (typeof nonePrice !== "number" || typeof colorPrice !== "number") {
@@ -502,6 +591,20 @@ function getDerivedGoldPrice(size, laminationCode, quantity) {
 }
 
 function getUnitPrice(size, laminationCode, extraCode, quantity, options = {}) {
+  const product = options.product || LABELS.product;
+  const cutCode = options.cutCode || "dieCut";
+  const capturedPrice = getCapturedBaselinePrice(
+    size,
+    product,
+    cutCode,
+    laminationCode,
+    extraCode,
+    quantity
+  );
+  if (typeof capturedPrice === "number") {
+    return capturedPrice;
+  }
+
   const groupedTierPrice = getGroupedTierPrice(size, laminationCode, extraCode, quantity);
   if (typeof groupedTierPrice === "number") {
     return groupedTierPrice;
@@ -513,7 +616,10 @@ function getUnitPrice(size, laminationCode, extraCode, quantity, options = {}) {
   }
 
   if (!options.skipDerived && normalizeExtraCode(extraCode) === "pureGold") {
-    const derivedGoldPrice = getDerivedGoldPrice(size, laminationCode, quantity);
+    const derivedGoldPrice = getDerivedGoldPrice(size, laminationCode, quantity, {
+      cutCode,
+      product
+    });
     if (typeof derivedGoldPrice === "number") {
       return derivedGoldPrice;
     }
@@ -543,11 +649,16 @@ function generateText() {
   const cutCode = getActiveCode("cut") || "dieCut";
   const laminationCode = getActiveCode("lamination") || "glossy";
   const extraCode = getActiveCode("extra") || "none";
+  const capturedRow = getCapturedBaselineRow(size, product, cutCode, laminationCode, extraCode);
+  const baselineLabel = describeBaselineSelection(cutCode, laminationCode, extraCode);
   const lines = [];
   lines.push(buildHeader(product, size, cutCode, laminationCode, extraCode));
 
   QUANTITY_PLANS.forEach((quantity) => {
-    const unitPrice = getUnitPrice(size, laminationCode, extraCode, quantity);
+    const unitPrice = getUnitPrice(size, laminationCode, extraCode, quantity, {
+      cutCode,
+      product
+    });
     if (typeof unitPrice !== "number") {
       lines.push(`${styleNumber}款 ${quantity}个，当前基线未覆盖该尺寸/工艺组合`);
       return;
@@ -564,6 +675,31 @@ function generateText() {
   }
 
   resultText.value = lines.join("\n");
+
+  if (capturedRow) {
+    updateBaselineStatus(`命中真实基线：${baselineLabel} / ${getSizeRuleKey(size)} / ${QUANTITY_PLANS.length}档`);
+  } else if (capturedBaselineData) {
+    updateBaselineStatus(`未命中真实基线：${baselineLabel} / ${getSizeRuleKey(size)}，已回退旧规则`, true);
+  }
+}
+
+async function loadCapturedBaseline() {
+  try {
+    const response = await fetch(BASELINE_DATA_URL, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    capturedBaselineData = await response.json();
+    capturedBaselineIndex = buildCapturedBaselineIndex(capturedBaselineData);
+    updateBaselineStatus(
+      `已加载 ${capturedBaselineData.groups.length} 组 / ${
+        capturedBaselineData.groups.reduce((sum, group) => sum + group.rows.length, 0)
+      } 条`
+    );
+    generateText();
+  } catch (error) {
+    updateBaselineStatus("真实基线加载失败，使用旧规则", true);
+  }
 }
 
 function resetForm() {
@@ -637,3 +773,4 @@ copyButton.addEventListener("click", async () => {
 
 bootstrapChipMeta();
 generateText();
+loadCapturedBaseline();
