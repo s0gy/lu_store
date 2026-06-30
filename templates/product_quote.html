@@ -56,7 +56,7 @@
               </div>
 
               <div class="form-row">
-                <label for="productType">品种</label>
+                <label for="productType">{{ product.type_label | default("品种") }}</label>
                 <select id="productType">
                   {% for item in product.types %}
                     <option value="{{ item }}" {% if item == product.default_type %}selected{% endif %}>{{ item }}</option>
@@ -64,10 +64,44 @@
                 </select>
               </div>
 
+              {% for field in product.extra_fields | default([]) %}
+                {% if field.position | default("after_type") == "after_type" %}
+                  <div class="form-row">
+                    <label for="{{ field.key }}">{{ field.label }}</label>
+                    {% if field.kind == "select" %}
+                      <select id="{{ field.key }}" class="extra-field" data-label="{{ field.output_label | default(field.label) }}">
+                        {% for item in field.options %}
+                          <option value="{{ item }}" {% if item == field.default %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                      </select>
+                    {% else %}
+                      <input id="{{ field.key }}" class="extra-field" data-label="{{ field.output_label | default(field.label) }}" type="text" value="{{ field.default }}" placeholder="{{ field.default }}">
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+
               <div class="form-row">
                 <label for="sizeInput">{{ product.size_label | safe }}</label>
                 <input id="sizeInput" type="text" value="{{ product.default_size }}" placeholder="{{ product.default_size }}">
               </div>
+
+              {% for field in product.extra_fields | default([]) %}
+                {% if field.position | default("after_type") == "after_size" %}
+                  <div class="form-row">
+                    <label for="{{ field.key }}">{{ field.label }}</label>
+                    {% if field.kind == "select" %}
+                      <select id="{{ field.key }}" class="extra-field" data-label="{{ field.output_label | default(field.label) }}">
+                        {% for item in field.options %}
+                          <option value="{{ item }}" {% if item == field.default %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                      </select>
+                    {% else %}
+                      <input id="{{ field.key }}" class="extra-field" data-label="{{ field.output_label | default(field.label) }}" type="text" value="{{ field.default }}" placeholder="{{ field.default }}">
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
 
               <div class="form-row">
                 <label for="quantityBase">{{ product.quantity_label }}</label>

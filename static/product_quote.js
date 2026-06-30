@@ -11,6 +11,7 @@ const calcButton = document.getElementById("calcButton");
 const resetButton = document.getElementById("resetButton");
 const copyButton = document.getElementById("copyButton");
 const chips = Array.from(document.querySelectorAll(".chip"));
+const extraFields = Array.from(document.querySelectorAll(".extra-field"));
 
 function getSelectedValues(groupName) {
   return chips
@@ -66,6 +67,11 @@ function generateText() {
   const lines = [];
 
   lines.push(`${selectedType} - ${size.width}*${size.height} - ${titleCraft || "基础工艺"}`);
+  extraFields.forEach((field) => {
+    if (field.value.trim()) {
+      lines.push(`${field.dataset.label}：${field.value.trim()}`);
+    }
+  });
   lines.push(`${count}款 ${formatQuantity(selectedQty)}，参考报价 ${totalPrice}元`);
   lines.push(`单款参考 ${unitPrice}元，已包含基础排版与 demo 工艺费`);
 
@@ -91,6 +97,12 @@ function resetForm() {
   quantityBase.value = String(productConfig.default_quantity);
   styleCount.value = String(productConfig.default_style_count);
   customerName.value = "";
+  extraFields.forEach((field) => {
+    const config = (productConfig.extra_fields || []).find((item) => item.key === field.id);
+    if (config) {
+      field.value = config.default;
+    }
+  });
 
   productConfig.craft_groups.forEach((group) => {
     const groupChips = chips.filter((chip) => chip.dataset.group === group.key);
@@ -117,7 +129,7 @@ chips.forEach((chip) => {
   });
 });
 
-[productType, sizeInput, quantityBase, styleCount, customerName].forEach((element) => {
+[productType, sizeInput, quantityBase, styleCount, customerName, ...extraFields].forEach((element) => {
   element.addEventListener("input", generateText);
   element.addEventListener("change", generateText);
 });
