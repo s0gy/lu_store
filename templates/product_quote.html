@@ -131,10 +131,11 @@
                   <div class="craft-group craft-group-stack">
                     <div class="craft-group-label">{{ group.label }}</div>
                     <div class="craft-chip-row">
+                      {% set default_options = group.default_options | default([]) %}
                       {% for option in group.options %}
                         <button
                           type="button"
-                          class="chip{% if loop.first %} active{% endif %}"
+                          class="chip{% if option in default_options %} active{% endif %}"
                           data-group="{{ group.key }}"
                           data-multi="{{ 'true' if group.multi else 'false' }}"
                           data-value="{{ option }}"

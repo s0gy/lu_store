@@ -105,9 +105,10 @@ function resetForm() {
   });
 
   productConfig.craft_groups.forEach((group) => {
+    const defaultOptions = group.default_options || [];
     const groupChips = chips.filter((chip) => chip.dataset.group === group.key);
-    groupChips.forEach((chip, index) => {
-      chip.classList.toggle("active", index === 0);
+    groupChips.forEach((chip) => {
+      chip.classList.toggle("active", defaultOptions.includes(chip.dataset.value));
     });
   });
 

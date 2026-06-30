@@ -26,22 +26,34 @@ EXPECTED_FIELD_HINTS = {
     "insert-flag": {
         "heading": "牙签插旗报价",
         "quantity_label": "数量(张)",
-        "craft_labels": ["裁切工艺", "覆膜工艺", "配件"],
+        "craft_groups": [
+            ("裁切工艺", ["模切", "裁切"], ["模切"]),
+            ("覆膜工艺", ["覆哑膜", "覆亮膜", "不覆膜"], []),
+            ("配件", ["配牙签", "粘牙签", "配刮刮膜", "粘刮刮膜"], ["配牙签"]),
+        ],
     },
     "special-paper-card": {
         "heading": "特种纸卡片报价",
         "quantity_label": "数量(张)",
-        "craft_labels": ["基础工艺", "常见工艺"],
+        "craft_groups": [
+            ("工艺", ["打孔", "异形模切", "圆角", "打点线", "压痕", "配流苏", "穿流苏", "单面烫金", "双面烫金"], []),
+            ("常见工艺", ["打码"], []),
+        ],
     },
     "insert-card": {
         "heading": "插卡报价",
         "quantity_label": "数量(个)",
-        "craft_labels": ["工艺"],
+        "craft_groups": [
+            ("工艺", ["模切"], []),
+        ],
     },
     "keychain": {
         "heading": "钥匙扣报价",
         "quantity_label": "数量(个)",
-        "craft_labels": ["常见工艺", "配件"],
+        "craft_groups": [
+            ("常见工艺", ["打孔"], ["打孔"]),
+            ("配件", ["配件"], []),
+        ],
     },
 }
 
@@ -75,8 +87,11 @@ def main():
         page = by_slug[slug]
         assert_equal(page["heading"], hints["heading"], f"{slug} 标题不正确")
         assert_equal(page["quantity_label"], hints["quantity_label"], f"{slug} 数量字段不正确")
-        craft_labels = [group["label"] for group in page["craft_groups"]]
-        assert_equal(craft_labels, hints["craft_labels"], f"{slug} 工艺字段不正确")
+        craft_groups = [
+            (group["label"], group["options"], group.get("default_options", []))
+            for group in page["craft_groups"]
+        ]
+        assert_equal(craft_groups, hints["craft_groups"], f"{slug} 工艺字段不正确")
 
     print("product pages ok")
 
