@@ -10,17 +10,14 @@ EXPECTED_PAGES = [
     ("special-paper-card", "特种纸卡片", "product_quote"),
     ("insert-card", "插卡", "product_quote"),
     ("keychain", "钥匙扣", "product_quote"),
+    ("banner", "条幅", "product_quote"),
+    ("card", "卡片", "product_quote"),
+    ("pvc", "PVC", "product_quote"),
+    ("uv-transfer", "金属标-UV转印贴", "product_quote"),
+    ("fridge-magnet", "冰箱贴", "product_quote"),
+    ("coaster", "杯垫", "product_quote"),
+    ("class-flag", "班旗", "product_quote"),
 ]
-
-REMOVED_SLUGS = {
-    "banner",
-    "card",
-    "pvc",
-    "uv-transfer",
-    "fridge-magnet",
-    "coaster",
-    "class-flag",
-}
 
 EXPECTED_FIELD_HINTS = {
     "insert-flag": {
@@ -55,6 +52,62 @@ EXPECTED_FIELD_HINTS = {
             ("配件", ["配件"], []),
         ],
     },
+    "banner": {
+        "heading": "条幅报价",
+        "quantity_label": "数量(条)",
+        "craft_groups": [
+            ("边缘工艺", ["普通裁切", "锁边打扣", "穿杆口"], []),
+            ("附加工艺", ["单面喷绘", "双面喷绘", "加急"], []),
+        ],
+    },
+    "card": {
+        "heading": "卡片报价",
+        "quantity_label": "数量(张)",
+        "craft_groups": [
+            ("印刷方式", ["单面印刷", "双面印刷", "专色印刷"], []),
+            ("附加工艺", ["圆角", "覆哑膜", "烫金"], []),
+        ],
+    },
+    "pvc": {
+        "heading": "PVC报价",
+        "quantity_label": "数量(个)",
+        "craft_groups": [
+            ("表面处理", ["亮面", "哑面", "磨砂"], []),
+            ("附加工艺", ["打孔", "平码", "喷码"], []),
+        ],
+    },
+    "uv-transfer": {
+        "heading": "金属标-UV转印贴报价",
+        "quantity_label": "数量(枚)",
+        "craft_groups": [
+            ("表面效果", ["亮光", "哑光", "拉丝"], []),
+            ("附加工艺", ["背胶加强", "定位膜", "加急"], []),
+        ],
+    },
+    "fridge-magnet": {
+        "heading": "冰箱贴报价",
+        "quantity_label": "数量(个)",
+        "craft_groups": [
+            ("形状方案", ["方形", "圆形", "异形模切"], []),
+            ("附加项", ["亮膜", "滴胶", "独立包装"], []),
+        ],
+    },
+    "coaster": {
+        "heading": "杯垫报价",
+        "quantity_label": "数量(个)",
+        "craft_groups": [
+            ("外形方案", ["方形", "圆形", "异形"], []),
+            ("附加工艺", ["吸水层", "覆膜", "加厚"], []),
+        ],
+    },
+    "class-flag": {
+        "heading": "班旗报价",
+        "quantity_label": "数量(套)",
+        "craft_groups": [
+            ("旗面材质", ["经编布", "贡缎布", "牛津布"], []),
+            ("附加项", ["配旗杆", "流苏", "加急"], []),
+        ],
+    },
 }
 
 
@@ -76,11 +129,12 @@ def assert_equal(actual, expected, message):
 def main():
     pages = load_product_pages()
     summary = [(item["slug"], item["name"], item["endpoint"]) for item in pages]
-    assert_equal(summary, EXPECTED_PAGES, "产品页清单不符合目标五页")
+    assert_equal(summary, EXPECTED_PAGES, "产品页清单不符合目标页面清单")
 
     slugs = {item["slug"] for item in pages}
-    leftovers = sorted(slugs & REMOVED_SLUGS)
-    assert_equal(leftovers, [], "旧 demo 产品页仍然出现在 PRODUCT_PAGES 中")
+    assert_equal(len(slugs), len(pages), "产品页 slug 出现重复")
+    names = [item["name"] for item in pages]
+    assert_equal("插旗" in names, False, "旧插旗页面不应恢复，保留当前牙签插旗")
 
     by_slug = {item["slug"]: item for item in pages}
     for slug, hints in EXPECTED_FIELD_HINTS.items():
