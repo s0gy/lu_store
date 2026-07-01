@@ -41,6 +41,8 @@ EXPECTED_FIELD_HINTS = {
     },
     "insert-card": {
         "heading": "插卡报价",
+        "types": ["白卡纸插卡"],
+        "default_type": "白卡纸插卡",
         "quantity_label": "数量(个)",
         "craft_groups": [
             ("工艺", ["模切"], []),
@@ -49,17 +51,19 @@ EXPECTED_FIELD_HINTS = {
     "keychain": {
         "heading": "钥匙扣报价",
         "quantity_label": "数量(个)",
+        "extra_fields": [
+            ("厚度", ["3.6mm"], "3.6mm"),
+        ],
         "craft_groups": [
             ("常见工艺", ["打孔"], ["打孔"]),
-            ("配件", ["配件"], []),
+            ("配件", ["标准款", "经济款", "龙虾款", "时尚款", "珠链款", "D扣款", "星星款", "彩绳款", "彩圈铃铛款", "门扣款"], ["标准款"]),
         ],
     },
     "banner": {
         "heading": "条幅报价",
         "quantity_label": "数量(条)",
         "craft_groups": [
-            ("边缘工艺", ["普通裁切", "锁边打扣", "穿杆口"], []),
-            ("附加工艺", ["单面喷绘", "双面喷绘", "加急"], []),
+            ("工艺", ["缝筒", "打扣", "四角吊耳", "净裁"], ["缝筒"]),
         ],
     },
     "card": {
@@ -149,6 +153,12 @@ def main():
             assert_equal(page["types"], hints["types"], f"{slug} 品种字段不正确")
         if "default_type" in hints:
             assert_equal(page["default_type"], hints["default_type"], f"{slug} 默认品种不正确")
+        if "extra_fields" in hints:
+            extra_fields = [
+                (field["label"], field["options"], field["default"])
+                for field in page.get("extra_fields", [])
+            ]
+            assert_equal(extra_fields, hints["extra_fields"], f"{slug} 附加字段不正确")
         assert_equal(page["quantity_label"], hints["quantity_label"], f"{slug} 数量字段不正确")
         craft_groups = [
             (group["label"], group["options"], group.get("default_options", []))
