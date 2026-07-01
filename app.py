@@ -29,8 +29,8 @@ PRODUCT_PAGES = [
         "description": "按领淘插旗页面字段整理成本地牙签插旗报价页，先用本地 demo 规则快速出价。",
         "badge": "牙签插旗",
         "type_label": "品种",
-        "types": ["250克白卡纸对裱", "300克白卡纸对裱", "250克铜版纸对裱"],
-        "default_type": "250克白卡纸对裱",
+        "types": ["铜板纸不干胶"],
+        "default_type": "铜板纸不干胶",
         "size_label": "尺寸(CM/厘米) <span class=\"warn\">输入格式: 长 * 宽</span>",
         "default_size": "5*7",
         "extra_fields": [
@@ -49,17 +49,16 @@ PRODUCT_PAGES = [
         "default_quantity": 500,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
-            {"key": "cut", "label": "裁切工艺", "multi": False, "options": ["模切", "裁切"], "default_options": ["模切"]},
-            {"key": "lamination", "label": "覆膜工艺", "multi": False, "options": ["覆哑膜", "覆亮膜", "不覆膜"], "default_options": []},
-            {"key": "accessory", "label": "配件", "multi": True, "options": ["配牙签", "粘牙签", "配刮刮膜", "粘刮刮膜"], "default_options": ["配牙签"]},
+            {"key": "cut", "label": "裁切工艺", "multi": False, "options": ["模切"], "default_options": ["模切"]},
+            {"key": "lamination", "label": "覆膜工艺", "multi": False, "options": ["覆亮膜"], "default_options": ["覆亮膜"]},
+            {"key": "accessory", "label": "配件", "multi": True, "options": ["粘牙签", "配牙签"], "default_options": ["配牙签"]},
         ],
         "pricing": {
-            "base_price": {"250克白卡纸对裱": 68, "300克白卡纸对裱": 78, "250克铜版纸对裱": 72},
+            "base_price": {"铜板纸不干胶": 68},
             "area_steps": [{"max": 30, "fee": 0}, {"max": 60, "fee": 12}, {"max": 100, "fee": 24}, {"max": 999999, "fee": 45}],
             "quantity_fee": {500: 0, 1000: 32, 2000: 70},
-            "craft_fee": {"模切": 8, "裁切": 0, "覆哑膜": 12, "覆亮膜": 12, "不覆膜": 0, "配牙签": 10, "粘牙签": 18, "配刮刮膜": 12, "粘刮刮膜": 20},
+            "craft_fee": {"模切": 8, "覆亮膜": 12, "粘牙签": 18, "配牙签": 10},
         },
         "result_lines": ["牙签插旗当前为本地 demo 报价，真实生产价后续可接领淘基线。", "默认按单面印刷和配牙签场景整理。"],
         "preview_label": "牙签插旗效果预览",
@@ -84,7 +83,6 @@ PRODUCT_PAGES = [
         "default_quantity": 200,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "craft", "label": "工艺", "multi": True, "options": ["打孔", "异形模切", "圆角", "打点线", "压痕", "配流苏", "穿流苏", "单面烫金", "双面烫金"], "default_options": []},
             {"key": "commonCraft", "label": "常见工艺", "multi": True, "options": ["打码"], "default_options": []},
@@ -129,7 +127,6 @@ PRODUCT_PAGES = [
         "default_quantity": 200,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "craft", "label": "工艺", "multi": False, "options": ["模切"], "default_options": []},
         ],
@@ -172,7 +169,6 @@ PRODUCT_PAGES = [
         "default_quantity": 100,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "commonCraft", "label": "常见工艺", "multi": False, "options": ["打孔"], "default_options": ["打孔"]},
             {"key": "accessory", "label": "配件", "multi": True, "options": ["配件"], "default_options": []},
@@ -205,7 +201,6 @@ PRODUCT_PAGES = [
         "default_quantity": 5,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "edge", "label": "边缘工艺", "multi": False, "options": ["普通裁切", "锁边打扣", "穿杆口"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["单面喷绘", "双面喷绘", "加急"]},
@@ -238,7 +233,6 @@ PRODUCT_PAGES = [
         "default_quantity": 1000,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "print", "label": "印刷方式", "multi": False, "options": ["单面印刷", "双面印刷", "专色印刷"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["圆角", "覆哑膜", "烫金"]},
@@ -271,7 +265,6 @@ PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "surface", "label": "表面处理", "multi": False, "options": ["亮面", "哑面", "磨砂"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["打孔", "平码", "喷码"]},
@@ -304,7 +297,6 @@ PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "finish", "label": "表面效果", "multi": False, "options": ["亮光", "哑光", "拉丝"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["背胶加强", "定位膜", "加急"]},
@@ -337,7 +329,6 @@ PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "shape", "label": "形状方案", "multi": False, "options": ["方形", "圆形", "异形模切"]},
             {"key": "extra", "label": "附加项", "multi": True, "options": ["亮膜", "滴胶", "独立包装"]},
@@ -370,7 +361,6 @@ PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "shape", "label": "外形方案", "multi": False, "options": ["方形", "圆形", "异形"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["吸水层", "覆膜", "加厚"]},
@@ -403,7 +393,6 @@ PRODUCT_PAGES = [
         "default_quantity": 3,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "material", "label": "旗面材质", "multi": False, "options": ["经编布", "贡缎布", "牛津布"]},
             {"key": "extra", "label": "附加项", "multi": True, "options": ["配旗杆", "流苏", "加急"]},
@@ -445,7 +434,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 5,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "edge", "label": "边缘工艺", "multi": False, "options": ["普通裁切", "锁边打扣", "穿杆口"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["单面喷绘", "双面喷绘", "加急"]},
@@ -478,7 +466,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 3,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "pole", "label": "旗杆方案", "multi": False, "options": ["普通旗杆", "加厚旗杆", "铝合金旗杆"]},
             {"key": "extra", "label": "附加项", "multi": True, "options": ["含底座", "含收纳袋", "加急"]},
@@ -511,7 +498,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 1000,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "print", "label": "印刷方式", "multi": False, "options": ["单面印刷", "双面印刷", "专色印刷"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["圆角", "覆哑膜", "烫金"]},
@@ -544,7 +530,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "surface", "label": "表面处理", "multi": False, "options": ["亮面", "哑面", "磨砂"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["打孔", "平码", "喷码"]},
@@ -577,7 +562,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "finish", "label": "表面效果", "multi": False, "options": ["亮光", "哑光", "拉丝"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["背胶加强", "定位膜", "加急"]},
@@ -610,7 +594,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "shape", "label": "形状方案", "multi": False, "options": ["方形", "圆形", "异形模切"]},
             {"key": "extra", "label": "附加项", "multi": True, "options": ["亮膜", "滴胶", "独立包装"]},
@@ -643,7 +626,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 300,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "shape", "label": "外形方案", "multi": False, "options": ["方形", "圆形", "异形"]},
             {"key": "extra", "label": "附加工艺", "multi": True, "options": ["吸水层", "覆膜", "加厚"]},
@@ -676,7 +658,6 @@ LEGACY_PRODUCT_PAGES = [
         "default_quantity": 3,
         "style_label": "款数",
         "default_style_count": 1,
-        "customer_label": "客户旺旺",
         "craft_groups": [
             {"key": "material", "label": "旗面材质", "multi": False, "options": ["经编布", "贡缎布", "牛津布"]},
             {"key": "extra", "label": "附加项", "multi": True, "options": ["配旗杆", "流苏", "加急"]},

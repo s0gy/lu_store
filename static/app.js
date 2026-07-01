@@ -251,7 +251,6 @@ const sizeInput = document.getElementById("sizeInput");
 const quantityBase = document.getElementById("quantityBase");
 const styleCount = document.getElementById("styleCount");
 const priceScale = document.getElementById("priceScale");
-const customerName = document.getElementById("customerName");
 const resultText = document.getElementById("resultText");
 const calcButton = document.getElementById("calcButton");
 const resetButton = document.getElementById("resetButton");
@@ -670,9 +669,6 @@ function generateText() {
   lines.push("\u5305\u90ae\uff0c\u514d\u8d39\u8bbe\u8ba1\u5462~\uff08\u504f\u8fdc\u5730\u533a\u9700\u8865\u90ae\u8d39\uff09");
   lines.push("");
   lines.push("\u4eb2 \u73b0\u5728\u4e0b\u5355\u53ef\u4ee5\u53c2\u52a0\u6dd8\u5b9d\u6d3b\u52a88.5\u6298\u6298\u6263\u54e6!");
-  if (customerName.value.trim()) {
-    lines.push(`\u5ba2\u6237\u79f0\u547c\uff1a${customerName.value.trim()}`);
-  }
 
   resultText.value = lines.join("\n");
 
@@ -708,7 +704,6 @@ function resetForm() {
   quantityBase.value = "500";
   styleCount.value = "1";
   priceScale.value = "1";
-  customerName.value = "";
 
   chips.forEach((chip) => {
     chip.classList.remove("active");
@@ -749,7 +744,7 @@ chips.forEach((chip) => {
   });
 });
 
-[productType, sizeInput, quantityBase, styleCount, priceScale, customerName].forEach((element) => {
+[productType, sizeInput, quantityBase, styleCount, priceScale].forEach((element) => {
   element.addEventListener("input", generateText);
   element.addEventListener("change", generateText);
 });

@@ -5,7 +5,6 @@ const productType = document.getElementById("productType");
 const sizeInput = document.getElementById("sizeInput");
 const quantityBase = document.getElementById("quantityBase");
 const styleCount = document.getElementById("styleCount");
-const customerName = document.getElementById("customerName");
 const resultText = document.getElementById("resultText");
 const calcButton = document.getElementById("calcButton");
 const resetButton = document.getElementById("resetButton");
@@ -84,10 +83,6 @@ function generateText() {
     lines.push(line);
   });
 
-  if (customerName.value.trim()) {
-    lines.push(`客户旺旺：${customerName.value.trim()}`);
-  }
-
   resultText.value = lines.join("\n");
 }
 
@@ -96,7 +91,6 @@ function resetForm() {
   sizeInput.value = productConfig.default_size;
   quantityBase.value = String(productConfig.default_quantity);
   styleCount.value = String(productConfig.default_style_count);
-  customerName.value = "";
   extraFields.forEach((field) => {
     const config = (productConfig.extra_fields || []).find((item) => item.key === field.id);
     if (config) {
@@ -130,7 +124,7 @@ chips.forEach((chip) => {
   });
 });
 
-[productType, sizeInput, quantityBase, styleCount, customerName, ...extraFields].forEach((element) => {
+[productType, sizeInput, quantityBase, styleCount, ...extraFields].forEach((element) => {
   element.addEventListener("input", generateText);
   element.addEventListener("change", generateText);
 });

@@ -22,11 +22,13 @@ EXPECTED_PAGES = [
 EXPECTED_FIELD_HINTS = {
     "insert-flag": {
         "heading": "牙签插旗报价",
+        "types": ["铜板纸不干胶"],
+        "default_type": "铜板纸不干胶",
         "quantity_label": "数量(张)",
         "craft_groups": [
-            ("裁切工艺", ["模切", "裁切"], ["模切"]),
-            ("覆膜工艺", ["覆哑膜", "覆亮膜", "不覆膜"], []),
-            ("配件", ["配牙签", "粘牙签", "配刮刮膜", "粘刮刮膜"], ["配牙签"]),
+            ("裁切工艺", ["模切"], ["模切"]),
+            ("覆膜工艺", ["覆亮膜"], ["覆亮膜"]),
+            ("配件", ["粘牙签", "配牙签"], ["配牙签"]),
         ],
     },
     "special-paper-card": {
@@ -137,9 +139,16 @@ def main():
     assert_equal("插旗" in names, False, "旧插旗页面不应恢复，保留当前牙签插旗")
 
     by_slug = {item["slug"]: item for item in pages}
+    for page in pages:
+        assert_equal("customer_label" in page, False, f"{page['slug']} 不应保留客户字段")
+
     for slug, hints in EXPECTED_FIELD_HINTS.items():
         page = by_slug[slug]
         assert_equal(page["heading"], hints["heading"], f"{slug} 标题不正确")
+        if "types" in hints:
+            assert_equal(page["types"], hints["types"], f"{slug} 品种字段不正确")
+        if "default_type" in hints:
+            assert_equal(page["default_type"], hints["default_type"], f"{slug} 默认品种不正确")
         assert_equal(page["quantity_label"], hints["quantity_label"], f"{slug} 数量字段不正确")
         craft_groups = [
             (group["label"], group["options"], group.get("default_options", []))
